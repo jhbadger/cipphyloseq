@@ -8,9 +8,11 @@
 #' @param glom run tax_glom on biom to get to desired level (FALSE if already at right level)
 #' @export
 #' @examples
-#' my_deseq2()
+#' deseq2_biom()
 
-my_deseq2 <- function(biom, taxlevel, condition, alpha = 0.01, threshold=1, glom=TRUE) {
+deseq2_biom <- function(biom, taxlevel, condition, alpha = 0.01, threshold=1, glom=TRUE) {
+  library(phyloseq)
+  library(DESeq2)
   if (glom) {
     biom <- tax_glom(biom, taxrank = taxlevel)
   }
@@ -44,10 +46,12 @@ my_deseq2 <- function(biom, taxlevel, condition, alpha = 0.01, threshold=1, glom
 #' @param colors optional vector of colors
 #' @export
 #' @examples
-#' my_boxplot()
+#' boxplot_biom()
 
-my_boxplot <- function(biom, taxlevel, condition, results, title=NULL,
+boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
                        glom = TRUE, printSig = TRUE, cex = 2, colors = rep("white",2*nrow(results))) {
+  library(phyloseq)
+  library(ggplot2)
   group <- sample_data(biom)[[condition]]
   if (glom) {
     biom <- tax_glom(biom, taxrank = taxlevel)
@@ -73,3 +77,4 @@ my_boxplot <- function(biom, taxlevel, condition, results, title=NULL,
   p <- p + scale_fill_manual(values=colors) + guides(fill=FALSE)
   p
 }
+

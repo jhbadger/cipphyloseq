@@ -1,7 +1,7 @@
 
 #' More flexible version of phyloseq's plot_bar
 #'
-#' 
+#'
 #' @param biom a phyloseq object.
 #' @param fill string giving taxonomic level (from tax_table) to plot at.
 #' @param title title of plot
@@ -9,10 +9,12 @@
 #' @param maxTaxa optional limit to number of taxa to display
 #' @export
 #' @examples
-#' my_plot_bar()
+#' plot_bar2()
 
-my_plot_bar <- function (biom, fill = NULL, title = NULL, colors = NULL, maxTaxa = NULL) 
+plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, maxTaxa = NULL)
 {
+  library(phyloseq)
+  library(ggplot2)
   physeq <- transform_sample_counts(biom, function(x) 100*x / sum(x))
   mdf <- psmelt(tax_glom(physeq, fill))
   fill_sum <- aggregate(as.formula(paste("Abundance ~",fill)), mdf, sum)
@@ -28,7 +30,7 @@ my_plot_bar <- function (biom, fill = NULL, title = NULL, colors = NULL, maxTaxa
   p <- ggplot(mdf, aes_string(x = "Sample", y = "Abundance", fill = fill))
   p <- p + geom_bar(stat = "identity", position = "stack", color = "black", size = 0)
   p <- p + ylab("Relative Abundance (%)")
-  p <- p + theme(axis.title.x=element_blank(), 
+  p <- p + theme(axis.title.x=element_blank(),
                  axis.text.x=element_blank(),  axis.ticks.x=element_blank())
   p <- p + theme(plot.margin = unit(c(0, 1, 1, 0.5), "lines"))
   p <- p + theme(strip.background = element_rect(fill = "white", colour = NA))
@@ -43,11 +45,11 @@ my_plot_bar <- function (biom, fill = NULL, title = NULL, colors = NULL, maxTaxa
 }
 
 #' Adds a bracket with a label to annotate a ggplot2 plot
-#' 
+#'
 #' For example, you can label groups of samples in a large bar chart.
 #' More typically you will use auto_bracket() which automatically sets
 #' the x and xend based on a category label.
-#' 
+#'
 #' @param plot a ggplot2 plot.
 #' @param text the text to label the bracket with.
 #' @param x the x coordinate of the start of the bracket.
@@ -64,12 +66,12 @@ my_bracket <- function(plot, text, x, xend, y, cex = 2.2) {
 }
 
 #' Adds a bracket automatically with a label to annotate a ggplot2 plot
-#' 
+#'
 #' For example, you can label groups of samples in a large bar chart.
 #' auto_bracket automatically positions the bracket assuming your list
 #' of categories is in the same order as your samples (which they would
 #' if they were part of a metadata sheet, or a sample_data in phyloseq)
-#' 
+#'
 #' @param plot a ggplot2 plot.
 #' @param matching the category value for the bracket
 #' @param categories the vector of categories (one per sample)
