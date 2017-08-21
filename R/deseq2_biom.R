@@ -18,20 +18,19 @@ deseq2_biom <- function(biom, taxlevel, condition, alpha = 0.01, threshold=1, gl
   }
   norm <-  transform_sample_counts(biom, function(x) 100*x / sum(x))
   biom <- prune_taxa(taxa_names(norm)[rowMeans(as.data.frame(otu_table(norm)))>threshold], biom)
-  lvls <- levels(unlist(sample_data(biom)[, condition]))
+  lvls <- unique(unlist(sample_data(biom)[, condition]))
   diagdds <- phyloseq_to_deseq2(biom, as.formula(paste0("~",condition)))
   diagdds <- DESeq(diagdds, test="Wald", fitType="parametric")
   res <- results(diagdds, cooksCutoff = FALSE)
   sigtab <- res[which(res$padj < alpha), ]
   sigtab <- cbind(as(sigtab, "data.frame"), as(tax_table(biom)[rownames(sigtab), ], "matrix"))
-  sigtab$direction <- ifelse(sigtab$log2FoldChange > 0,  lvls[2], lvls[1])
   expr <- substitute(x != "NA", list(x = as.name(taxlevel)))
   sigtab$log2FoldChange <- round(sigtab$log2FoldChange, 3)
   sigtab$lfcSE <- round(sigtab$lfcSE, 3)
   sigtab$pvalue <- signif(sigtab$pvalue, 3)
   sigtab$padj <- signif(sigtab$padj, 3)
-  select(as.tibble(sigtab), c("log2FoldChange", "lfcSE", "pvalue", "padj", taxlevel,
-                              "direction")) %>% arrange(padj) %>% filter_(expr)
+  select(as.tibble(sigtab), c("log2FoldChange", "lfcSE", "pvalue", "padj", taxlevel)) %>% 
+    arrange(padj) %>% filter_(expr)
 }
 
 #' Make a boxplot of significant OTUs found with my_deseq2
