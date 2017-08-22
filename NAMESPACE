@@ -3,6 +3,5 @@
 export(auto_bracket)
 export(boxplot_biom)
 export(deseq2_biom)
-export(donut_biom)
 export(my_bracket)
 export(plot_bar2)

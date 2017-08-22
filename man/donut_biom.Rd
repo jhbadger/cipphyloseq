@@ -4,25 +4,16 @@
 \alias{donut_biom}
 \title{Make a donut graph of two taxonomic levels}
 \usage{
-donut_biom(biom, taxlevel1, taxlevel2, variable, condition, threshold = 0)
-}
-\arguments{
-\item{biom}{a phyloseq object.}
-
-\item{taxlevel1}{string giving taxonomic level (from tax_table) to plot inner pie at.}
-
-\item{taxlevel2}{string giving taxonomic level (from tax_table) to plot outer pie at.}
-
-\item{variable}{variable in sample data to restrict samples to.}
-
-\item{condition}{value of variable to restrict samples to}
-
-\item{threshold}{threshold percentage above which will be included in graph}
+donut_biom(biom, samples, rank1, rank2, inner_colors, outer_colors,
+  radius = c(0.7, 1), threshold = 1, main = "")
 }
 \description{
-Make a donut graph of two taxonomic levels
-}
-\examples{
+biom
+group  vector identifying the group for each slice
+labels vector of labels for individual slices
+col    colors for each group
+radius radius for inner and outer pie (usually in [0,1])
+threshold threshold percent below which don't display
+main title of graph
 donut_biom
-
 }
