@@ -5,15 +5,26 @@
 \title{Make a donut graph of two taxonomic levels}
 \usage{
 donut_biom(biom, samples, rank1, rank2, inner_colors, outer_colors,
-  radius = c(0.7, 1), threshold = 1, main = "")
+  threshold = 1, title = "")
+}
+\arguments{
+\item{biom}{phyloseq object}
+
+\item{inner_colors}{colors four inner circle}
+
+\item{outer_colors}{colors for outer circle}
+
+\item{threshold}{threshold percent below which don't display}
+
+\item{title}{title of graph}
+
+\item{group}{vector identifying the group for each slice}
+
+\item{labels}{vector of labels for individual slices}
 }
 \description{
-biom
-group  vector identifying the group for each slice
-labels vector of labels for individual slices
-col    colors for each group
-radius radius for inner and outer pie (usually in [0,1])
-threshold threshold percent below which don't display
-main title of graph
-donut_biom
+Make a donut graph of two taxonomic levels
+}
+\examples{
+donut_biom()
 }

@@ -1,37 +1,50 @@
 #' Make a donut graph of two taxonomic levels
 #'
-#' biom
-#' group  vector identifying the group for each slice
-#' labels vector of labels for individual slices
-#' col    colors for each group
-#' radius radius for inner and outer pie (usually in [0,1])
-#' threshold threshold percent below which don't display
-#' main title of graph
-#' donut_biom
+#' @param biom phyloseq object
+#' @param group  vector identifying the group for each slice
+#' @param labels vector of labels for individual slices
+#' @param inner_colors colors four inner circle
+#' @param outer_colors colors for outer circle
+#' @param threshold threshold percent below which don't display
+#' @param title title of graph
+#' @export
+#' @examples
+#' donut_biom()
 
 donut_biom <- function(biom, samples, rank1, rank2, inner_colors,
-                       outer_colors, radius = c(.7, 1), threshold = 1, main="") {
+                       outer_colors, threshold = 1, title="") {
 
   if (!is.null(samples)) {
     biom <- prune_samples(samples, biom)
   }
   biom <- tax_glom(biom, rank2)
-  biom <- merge_samples(biom, rep(TRUE, length(sample_names(biom))), sum)
-  biom <- transform_sample_counts(biom, function(x) 100*x / sum(x))
-  biom <- prune_taxa(taxa_names(biom)[otu_table(biom)>=threshold], biom)
-  outer_labels <- as.data.frame(tax_table(biom))[[rank2]]
-  x <- as.numeric(otu_table(biom))
-  plot.new()
-  par(new = TRUE)
-  pie(x, border = NA, radius = radius[2L],
-      col = outer_colors, labels = outer_labels, main = main)
-  biom <- tax_glom(biom, rank1)
-  x <- as.numeric(otu_table(biom))
-  inner_labels <- as.data.frame(tax_table(biom))[[rank1]]
-  par(new = TRUE)
-  pie(x, border = NA, radius = radius[1L],
-      col = inner_colors, labels=NA)
-  legend("topright", legend=inner_labels, cex=0.8, fill=inner_colors)
-  par(mar=c(5,3,2,2)+0.1)
+  counts <- data.frame(weight = as.numeric(otu_table(biom)),
+                       rank1 = as.data.frame(tax_table(biom))[[rank1]],
+                       Taxon = as.data.frame(tax_table(biom))[[rank2]])
+  counts$weight <- 100.0*counts$weight/sum(counts$weight)
+  counts <- filter(counts, weight>=threshold)
+  counts$weight <- 100.0*counts$weight/sum(counts$weight)
+  counts <- counts %>% group_by(rank1,Taxon) %>% summarise(weight = sum(weight))
+  counts$fraction <- counts$weight / sum(counts$weight)
+  counts <- counts[order(counts$fraction), ]
+  counts$ymax <- cumsum(counts$fraction)
+  counts$ymin <- c(0, head(counts$ymax, n=-1))
+  p <- ggplot(counts) + 
+    geom_rect(aes(fill=Taxon, ymin=ymin, ymax=ymax, xmax=4, xmin=3)) +
+    geom_rect(aes(fill=rank1, ymin=ymin, ymax=ymax, xmax=3, xmin=0)) +
+    xlim(c(0, 4)) + 
+    theme(aspect.ratio=1) +
+    coord_polar(theta="y")
+  p <- p + theme(panel.grid=element_blank()) +
+    theme(axis.text=element_blank()) +
+    theme(axis.ticks=element_blank()) +
+    theme(axis.line = element_line(colour = "white"),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_blank()) 
+  p <- p + ggtitle(title)
+  p
 }
+
 
