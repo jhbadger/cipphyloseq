@@ -12,7 +12,7 @@
 #' donut_biom()
 
 donut_biom <- function(biom, samples=NULL, rank1, rank2, inner_colors,
-                       outer_colors, threshold = 1, title="") {
+                       outer_colors, threshold = 1, title="", verbose=FALSE) {
 
   if (!is.null(samples)) {
     biom <- prune_samples(samples, biom)
@@ -33,6 +33,9 @@ donut_biom <- function(biom, samples=NULL, rank1, rank2, inner_colors,
   counts$yavg <- (counts$ymax+counts$ymin)/2
   colors <- append(inner_colors[1:length(unique(counts$rank1))],
                    outer_colors[1:length(unique(counts$Taxon))])
+  if (verbose) {
+    return(counts)
+  }
   p <- ggplot(counts) + 
     geom_rect(aes(ymin=ymin, ymax=ymax, xmax=4, xmin=3, fill=Taxon, color=Taxon)) + 
     scale_fill_manual(values=colors) + scale_color_manual(values=colors) +
