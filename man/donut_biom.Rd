@@ -4,7 +4,7 @@
 \alias{donut_biom}
 \title{Make a donut graph of two taxonomic levels}
 \usage{
-donut_biom(biom, samples, rank1, rank2, inner_colors, outer_colors,
+donut_biom(biom, samples = NULL, rank1, rank2, inner_colors, outer_colors,
   threshold = 1, title = "")
 }
 \arguments{

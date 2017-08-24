@@ -31,14 +31,15 @@ donut_biom <- function(biom, samples=NULL, rank1, rank2, inner_colors,
   counts$ymax <- cumsum(counts$fraction)
   counts$ymin <- c(0, head(counts$ymax, n=-1))
   counts$yavg <- (counts$ymax+counts$ymin)/2
+  colors <- append(inner_colors[1:length(unique(counts$rank1))],
+                   outer_colors[1:length(unique(counts$Taxon))])
   p <- ggplot(counts) + 
-    geom_rect(aes(fill=Taxon, ymin=ymin, ymax=ymax, xmax=4, xmin=3)) +
-    geom_rect(aes(fill=rank1, ymin=ymin, ymax=ymax, xmax=3, xmin=0)) +
+    geom_rect(aes(ymin=ymin, ymax=ymax, xmax=4, xmin=3, fill=Taxon, color=Taxon)) + 
+    scale_fill_manual(values=colors) + scale_color_manual(values=colors) +
+    geom_rect(aes(ymin=ymin, ymax=ymax, xmax=3, xmin=0, fill=rank1, color=rank1)) +
     xlim(c(0, 4)) + 
     theme(aspect.ratio=1) +
     coord_polar(theta="y") 
-  #p <- p + annotate(geom = "text", y = (counts$ymax+counts$ymin)/2, x = 6, label = counts$Taxon, cex=3)
-  #p <- p + annotate("segment", x = 4, xend = 6, y = counts$ymin, yend = counts$ymax)
   p <- p + theme(panel.grid=element_blank()) +
     theme(axis.text=element_blank()) +
     theme(axis.ticks=element_blank()) +

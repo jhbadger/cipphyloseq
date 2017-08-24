@@ -4,7 +4,7 @@
 \alias{deseq2_biom}
 \title{Run DESeq2 on a phyloseq object and return tibble of significantly abundant OTUs}
 \usage{
-deseq2_biom(biom, taxlevel, condition, alpha = 0.01, threshold = 1,
+deseq2_biom(biom, taxlevel, group, alpha = 0.01, threshold = 1,
   glom = TRUE)
 }
 \arguments{
@@ -12,7 +12,7 @@ deseq2_biom(biom, taxlevel, condition, alpha = 0.01, threshold = 1,
 
 \item{taxlevel}{string giving taxonomic level (from tax_table) to compare at.}
 
-\item{condition}{string giving column in sample data to compare}
+\item{group}{string giving column in sample data to compare}
 
 \item{alpha}{p-value cutoff}
 

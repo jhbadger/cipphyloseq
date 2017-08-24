@@ -2,7 +2,7 @@
 #'
 #' @param biom a phyloseq object.
 #' @param taxlevel string giving taxonomic level (from tax_table) to compare at.
-#' @param condition string giving column in sample data to compare
+#' @param group string giving column in sample data to compare
 #' @param alpha p-value cutoff
 #' @param threshold minimum percentage of OTU to report
 #' @param glom run tax_glom on biom to get to desired level (FALSE if already at right level)
@@ -10,7 +10,7 @@
 #' @examples
 #' deseq2_biom()
 
-deseq2_biom <- function(biom, taxlevel, condition, alpha = 0.01, threshold=1, glom=TRUE) {
+deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=TRUE) {
   library(phyloseq)
   library(DESeq2)
   if (glom) {
@@ -18,8 +18,8 @@ deseq2_biom <- function(biom, taxlevel, condition, alpha = 0.01, threshold=1, gl
   }
   norm <-  transform_sample_counts(biom, function(x) 100*x / sum(x))
   biom <- prune_taxa(taxa_names(norm)[rowMeans(as.data.frame(otu_table(norm)))>threshold], biom)
-  lvls <- unique(unlist(sample_data(biom)[, condition]))
-  diagdds <- phyloseq_to_deseq2(biom, as.formula(paste0("~",condition)))
+  lvls <- unique(unlist(sample_data(biom)[, group]))
+  diagdds <- phyloseq_to_deseq2(biom, as.formula(paste0("~",group)))
   diagdds <- DESeq(diagdds, test="Wald", fitType="parametric")
   res <- results(diagdds, cooksCutoff = FALSE)
   sigtab <- res[which(res$padj < alpha), ]
