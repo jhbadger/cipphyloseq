@@ -11,13 +11,14 @@
 #' @examples
 #' donut_biom()
 
-donut_biom <- function(biom, samples, rank1, rank2, inner_colors,
+donut_biom <- function(biom, samples=NULL, rank1, rank2, inner_colors,
                        outer_colors, threshold = 1, title="") {
 
   if (!is.null(samples)) {
     biom <- prune_samples(samples, biom)
   }
   biom <- tax_glom(biom, rank2)
+
   counts <- data.frame(weight = as.numeric(otu_table(biom)),
                        rank1 = as.data.frame(tax_table(biom))[[rank1]],
                        Taxon = as.data.frame(tax_table(biom))[[rank2]])
@@ -29,12 +30,15 @@ donut_biom <- function(biom, samples, rank1, rank2, inner_colors,
   counts <- counts[order(counts$fraction), ]
   counts$ymax <- cumsum(counts$fraction)
   counts$ymin <- c(0, head(counts$ymax, n=-1))
+  counts$yavg <- (counts$ymax+counts$ymin)/2
   p <- ggplot(counts) + 
     geom_rect(aes(fill=Taxon, ymin=ymin, ymax=ymax, xmax=4, xmin=3)) +
     geom_rect(aes(fill=rank1, ymin=ymin, ymax=ymax, xmax=3, xmin=0)) +
     xlim(c(0, 4)) + 
     theme(aspect.ratio=1) +
-    coord_polar(theta="y")
+    coord_polar(theta="y") 
+  #p <- p + annotate(geom = "text", y = (counts$ymax+counts$ymin)/2, x = 6, label = counts$Taxon, cex=3)
+  #p <- p + annotate("segment", x = 4, xend = 6, y = counts$ymin, yend = counts$ymax)
   p <- p + theme(panel.grid=element_blank()) +
     theme(axis.text=element_blank()) +
     theme(axis.ticks=element_blank()) +
@@ -43,7 +47,7 @@ donut_biom <- function(biom, samples, rank1, rank2, inner_colors,
           panel.grid.minor = element_blank(),
           panel.border = element_blank(),
           panel.background = element_blank()) 
-  p <- p + ggtitle(title)
+  p <- p + ggtitle(title) + xlab("") + ylab("")
   p
 }
 
