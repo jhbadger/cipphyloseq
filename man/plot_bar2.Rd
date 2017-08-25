@@ -5,7 +5,7 @@
 \title{More flexible version of phyloseq's plot_bar}
 \usage{
 plot_bar2(biom, fill = NULL, title = NULL, colors = NULL,
-  maxTaxa = NULL)
+  minPercent = NULL)
 }
 \arguments{
 \item{biom}{a phyloseq object.}
@@ -16,7 +16,7 @@ plot_bar2(biom, fill = NULL, title = NULL, colors = NULL,
 
 \item{colors}{vector of color names to use}
 
-\item{maxTaxa}{optional limit to number of taxa to display}
+\item{minPercent}{optional limit to exclude low abundant taxa}
 }
 \description{
 More flexible version of phyloseq's plot_bar

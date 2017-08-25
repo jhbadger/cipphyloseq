@@ -6,26 +6,24 @@
 #' @param fill string giving taxonomic level (from tax_table) to plot at.
 #' @param title title of plot
 #' @param colors vector of color names to use
-#' @param maxTaxa optional limit to number of taxa to display
+#' @param minPercent optional limit to exclude low abundant taxa
 #' @export
 #' @examples
 #' plot_bar2()
 
-plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, maxTaxa = NULL)
+plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercent = NULL)
 {
   library(phyloseq)
   library(ggplot2)
   physeq <- transform_sample_counts(biom, function(x) 100*x / sum(x))
+  
+  if (!is.null(minPercent)) {
+    physeq = filter_taxa(physeq, function(x) mean(x) > minPercent, TRUE)
+    physeq <- transform_sample_counts(physeq, function(x) 100*x / sum(x))
+  }
   mdf <- psmelt(tax_glom(physeq, fill))
   fill_sum <- aggregate(as.formula(paste("Abundance ~",fill)), mdf, sum)
   mdf[,fill] <- factor(mdf[,fill], levels=fill_sum[order(-fill_sum$Abundance), fill])
-  if (!is.null(maxTaxa)) {
-    physeq <- prune_taxa(levels(mdf[,fill])[1:maxTaxa], physeq)
-    physeq <- transform_sample_counts(physeq, function(x) 100*x / sum(x))
-    mdf <- psmelt(tax_glom(physeq, fill))
-    fill_sum <- aggregate(as.formula(paste("Abundance ~",fill)), mdf, sum)
-    mdf[,fill] <- factor(mdf[,fill], levels=fill_sum[order(-fill_sum$Abundance), fill])
-  }
   mdf$Sample <- factor(mdf$Sample, levels=sample_names(physeq))
   p <- ggplot(mdf, aes_string(x = "Sample", y = "Abundance", fill = fill))
   p <- p + geom_bar(stat = "identity", position = "stack", color = "black", size = 0)
