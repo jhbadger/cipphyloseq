@@ -7,11 +7,13 @@
 #' @param title title of plot
 #' @param colors vector of color names to use
 #' @param minPercent optional limit to exclude low abundant taxa
+#' @param pickTaxa optional list of taxa to limit graph to.
 #' @export
 #' @examples
 #' plot_bar2()
 
-plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercent = NULL)
+plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercent = NULL,
+                       pickTaxa = NULL)
 {
   library(phyloseq)
   library(ggplot2)
@@ -19,6 +21,12 @@ plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercen
   
   if (!is.null(minPercent)) {
     physeq = filter_taxa(physeq, function(x) mean(x) > minPercent, TRUE)
+    physeq <- transform_sample_counts(physeq, function(x) 100*x / sum(x))
+  }
+  if (!is.null(pickTaxa)) {
+    otus <- tax_table(physeq) %>% as.data.frame
+    otus <- row.names(otus)[otus[,fill] %in% pickTaxa]
+    physeq <- prune_taxa(otus, physeq)
     physeq <- transform_sample_counts(physeq, function(x) 100*x / sum(x))
   }
   mdf <- psmelt(tax_glom(physeq, fill))
