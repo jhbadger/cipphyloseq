@@ -15,19 +15,30 @@
 #' @examples
 #' heatmap_biom()
 
-heatmap_biom <- function(biom, rank, group, glom=TRUE, norm = TRUE, log=TRUE, n = ntaxa(biom), cexRow=0.5, cexCol=0.5, reorder=TRUE, minVar = 2) {
+heatmap_biom <- function(biom, rank, group, glom=TRUE, reorder = TRUE,
+                         title = "", lowCol = "blue", highCol="tomato",
+                         log = TRUE) {
   if (glom) {
     biom <- tax_glom(biom, rank)
     taxa_names(biom) <- make.unique(as.data.frame(tax_table(biom))[[rank]] %>% as.character)
   }
-  goodtaxa <- taxa_names(biom)[apply(as.data.frame(otu_table(biom)), 1, var) >= minVar]
-  biom <- prune_taxa(goodtaxa, biom)
-  group_num <- as.character(as.numeric(sample_data(biom)[[group]]))
-  plotMRheatmap(obj = phyloseq_to_metagenomeSeq(biom), norm=norm, log=log, n = n, trace = "none",
-                cexRow=cexRow, cexCol=cexCol, key=TRUE, keysize=0.5, Colv = reorder,
-                ColSideColors=group_num, key.title=NA, key.ylab=NA, key.xlab=NA,
-                margins=c(8,8), fun=mad)
-  par(lend = 1, xpd=TRUE)
-  legend(x=0,y=2.1, legend=unique(sample_data(biom)[[group]]),
-         col=unique(sample_data(biom)[[group]]), lty=1, lwd=10)
+  counts <- as.matrix(otu_table(biom))
+  colnames <- colnames(counts)
+  cdf <- data.frame(scale(counts))
+  if (log) {
+    cdf <- log(cdf + 1)
+  }
+  colnames(cdf) <- colnames
+  cdf$vars <- rowVars(as.matrix(cdf))
+  cdf$taxa <- rownames(cdf)
+  cdf_melt <- melt(cdf, id=c("taxa", "vars"), variable_name = "sample")
+  cdf_melt <- cdf_melt[order(cdf_melt$vars, decreasing = TRUE),]
+  if (reorder) {
+    
+  }
+  ggplot(data = cdf_melt, aes(x = sample, y = taxa)) + 
+    geom_tile(aes(fill = value), size = 1) + 
+    scale_fill_gradient(low = lowCol, high = highCol) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, ),) 
+    ggtitle(title)
 }
