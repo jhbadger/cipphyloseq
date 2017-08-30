@@ -3,12 +3,12 @@ Title: Adds Additional Features (plots, DESeq2) to phyloseq
 Version: 0.1
 Authors@R: person("Jonathan", "Badger", email = "jhbadger@gmail.com", role = c("aut", "cre"))
 Description: Adds improved bar charts and DESeq2 analysis to phyloseq
-Depends: R (>= 3.4.1)
+Depends: tidyverse,
+    phyloseq,
+    metagenomeSeq,
+    DESeq2
 License: MIT
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1.9000
-Imports: tidyverse,
-    phyloseq,
-    metagenomeSeq,
-    DESeq2
+Imports: 
