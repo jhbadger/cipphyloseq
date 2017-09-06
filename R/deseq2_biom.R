@@ -23,14 +23,19 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
   diagdds <- DESeq(diagdds, test="Wald", fitType="parametric")
   res <- results(diagdds, cooksCutoff = FALSE)
   sigtab <- res[which(res$padj < alpha), ]
-  sigtab <- cbind(as(sigtab, "data.frame"), as(tax_table(biom)[rownames(sigtab), ], "matrix"))
-  expr <- substitute(x != "NA", list(x = as.name(taxlevel)))
-  sigtab$log2FoldChange <- round(sigtab$log2FoldChange, 3)
-  sigtab$lfcSE <- round(sigtab$lfcSE, 3)
-  sigtab$pvalue <- signif(sigtab$pvalue, 3)
-  sigtab$padj <- signif(sigtab$padj, 3)
-  select(as.tibble(sigtab), c("log2FoldChange", "lfcSE", "pvalue", "padj", taxlevel)) %>% 
-    arrange(padj) %>% filter_(expr)
+  if (nrow(sigtab) > 0 ) {
+    sigtab <- cbind(as(sigtab, "data.frame"), as(tax_table(biom)[rownames(sigtab), ], "matrix"))
+    expr <- substitute(x != "NA", list(x = as.name(taxlevel)))
+    sigtab$log2FoldChange <- round(sigtab$log2FoldChange, 3)
+    sigtab$lfcSE <- round(sigtab$lfcSE, 3)
+    sigtab$pvalue <- signif(sigtab$pvalue, 3)
+    sigtab$padj <- signif(sigtab$padj, 3)
+    select(as.tibble(sigtab), c("log2FoldChange", "lfcSE", "pvalue", "padj", taxlevel)) %>% 
+      arrange(padj) %>% filter_(expr)
+  }
+  else {
+    data.frame()
+  }
 }
 
 #' Make a boxplot of significant OTUs found with my_deseq2
