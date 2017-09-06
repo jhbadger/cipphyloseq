@@ -6,9 +6,14 @@ Description: Adds improved bar charts and DESeq2 analysis to phyloseq
 Depends: tidyverse,
     phyloseq,
     metagenomeSeq,
-    DESeq2
+    DESeq2,
+    reshape2
 License: MIT
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1.9000
-Imports: 
+Imports: tidyverse,
+    phyloseq,
+    metagenomeSeq,
+    DESeq2,
+    reshape2

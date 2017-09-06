@@ -2,11 +2,9 @@
 % Please edit documentation in R/heatmap_biom.R
 \name{heatmap_biom}
 \alias{heatmap_biom}
-\title{Make a donut graph of two taxonomic levels}
+\title{Make a heat map of a biom object with clustering}
 \usage{
-heatmap_biom(biom, rank, group, glom = TRUE, norm = TRUE, log = TRUE,
-  n = ntaxa(biom), cexRow = 0.5, cexCol = 0.5, reorder = TRUE,
-  minVar = 2)
+heatmap_biom(biom, rank, group, title = "")
 }
 \arguments{
 \item{biom}{phyloseq object}
@@ -14,17 +12,9 @@ heatmap_biom(biom, rank, group, glom = TRUE, norm = TRUE, log = TRUE,
 \item{rank}{string giving taxonomic rank to compare at}
 
 \item{group}{vector identifying the group for each slice}
-
-\item{glom}{run tax_glom on biom at rank}
-
-\item{norm}{normalize (via metagenomeSeq) data}
-
-\item{log}{log-transform data}
-
-\item{n}{maximum number of rows to include}
 }
 \description{
-Make a donut graph of two taxonomic levels
+Make a heat map of a biom object with clustering
 }
 \examples{
 heatmap_biom()

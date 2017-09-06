@@ -48,7 +48,8 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
 #' boxplot_biom()
 
 boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
-                       glom = TRUE, printSig = TRUE, cex = 2, colors = rep("white",2*nrow(results))) {
+                       glom = TRUE, printSig = TRUE, cex = 2, colors = rep("white",2*nrow(results)),
+                       show_points = TRUE) {
   library(phyloseq)
   library(ggplot2)
   group <- sample_data(biom)[[condition]]
@@ -63,9 +64,12 @@ boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
   otus <- gather(otus, sample, abundance, -taxon)
   otus[[condition]] <- as.factor(sample_data(norm)[otus$sample,][[condition]])
   otus$group <- interaction(otus[[condition]],factor(otus[["taxon"]], levels=results[[taxlevel]]))
-  p = ggplot(otus, aes(group, abundance, fill=group)) +
-    geom_boxplot(outlier.colour = "white") + ylab("Relative Abundance (%)") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  p <- ggplot(otus, aes(group, abundance, fill=group)) +
+    geom_boxplot(outlier.colour = "white") + ylab("Relative Abundance (%)") 
+    if (show_points) {
+      p <- p + geom_point(aes(fill = group), size = 2, position = position_jitterdodge())
+    }
+    p <- p + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
     xlab("") + ggtitle(title) +
     theme(panel.background = element_rect(fill = 'white', color='black'))
   if (printSig) {
