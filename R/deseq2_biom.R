@@ -53,10 +53,12 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
 #' boxplot_biom()
 
 boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
-                       glom = TRUE, printSig = TRUE, cex = 2, colors = rep("white",2*nrow(results)),
+                       glom = TRUE, printSig = TRUE, cex = 2, 
+                       colors = rep("white",nlevels(factor(sample_data(subbiom)[[condition]]))*nrow(results)),
                        show_points = TRUE) {
   library(phyloseq)
   library(ggplot2)
+  nlev <- nlevels(factor(sample_data(subbiom)[[condition]]))
   group <- sample_data(biom)[[condition]]
   if (glom) {
     biom <- tax_glom(biom, taxrank = taxlevel)
@@ -79,7 +81,7 @@ boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
     theme(panel.background = element_rect(fill = 'white', color='black'))
   if (printSig) {
     for (i in 1:nrow(results)) {
-      p <- p + annotate("text", label = signif(results[i,]$padj,2) , x = 2*i-0.5, y= -3 , cex)
+      p <- p + annotate("text", label = signif(results[i,]$padj,2) , x = nlev*i-(nlev/4.0), y= -3 , cex)
     }
   }
   p <- p + scale_fill_manual(values=colors) + guides(fill=FALSE)
