@@ -30,8 +30,15 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
     sigtab$lfcSE <- round(sigtab$lfcSE, 3)
     sigtab$pvalue <- signif(sigtab$pvalue, 3)
     sigtab$padj <- signif(sigtab$padj, 3)
-    select(as.tibble(sigtab), c("log2FoldChange", "lfcSE", "pvalue", "padj", taxlevel)) %>% 
+    if (taxlevel == "OTU") {
+      sigtab$OTU <- rownames(sigtab)
+    }
+    data <- select(as.tibble(sigtab), c("log2FoldChange", "lfcSE", "pvalue", "padj", taxlevel)) %>%
       arrange(padj) %>% filter_(expr)
+    if (taxlevel == "OTU") {
+      data$Taxon <- apply(data, 1, function(x){tax_table(biom)[x["OTU"],"Rank6"]})
+    }
+    data
   }
   else {
     data.frame()
@@ -53,9 +60,9 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
 #' boxplot_biom()
 
 boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
-                       glom = TRUE, printSig = TRUE, cex = 2, 
+                       glom = TRUE, printSig = TRUE, cex = 2,
                        colors = rep("white",nlevels(factor(sample_data(subbiom)[[condition]]))*nrow(results)),
-                       show_points = TRUE) {
+                       show_points = TRUE, pointColors=NULL, pointShapes=NULL) {
   library(phyloseq)
   library(ggplot2)
   nlev <- nlevels(factor(sample_data(subbiom)[[condition]]))
@@ -64,7 +71,9 @@ boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
     biom <- tax_glom(biom, taxrank = taxlevel)
   }
   norm <- transform_sample_counts(biom, function(x) 100*x / sum(x))
-  taxa_names(norm) <- make.unique(as.character(as.data.frame(tax_table(norm))[[taxlevel]]))
+  if (taxlevel !="OTU") {
+    taxa_names(norm) <- make.unique(as.character(as.data.frame(tax_table(norm))[[taxlevel]]))
+  }
   norm <- prune_taxa(results[[taxlevel]] %>% as.character, norm)
   otus <- as.data.frame(otu_table(norm))
   otus$taxon <- row.names(otus)
@@ -72,11 +81,19 @@ boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
   otus[[condition]] <- as.factor(sample_data(norm)[otus$sample,][[condition]])
   otus$group <- interaction(otus[[condition]],factor(otus[["taxon"]], levels=results[[taxlevel]]))
   p <- ggplot(otus, aes(group, abundance, fill=group)) +
-    geom_boxplot(outlier.colour = "white") + ylab("Relative Abundance (%)") 
+    geom_boxplot(outlier.colour = "white") + ylab("Relative Abundance (%)")
     if (show_points) {
-      p <- p + geom_point(aes(fill = group), size = 2, position = position_jitterdodge())
+      if (!is.null(pointColors)) {
+        otus[[pointColors]] <- as.factor(sample_data(norm)[otus$sample,][[pointColors]])
+        otus[[pointShapes]] <- as.factor(sample_data(norm)[otus$sample,][[pointShapes]])
+        p <- p + geom_point(aes(fill = group, color=otus[[pointColors]], shape=otus[[pointShapes]]), 
+                            size = 2, position = position_jitterdodge()) +
+          guides(color=guide_legend(title=pointColors), shape=guide_legend(title=pointShapes))
+      } else {
+        p <- p + geom_point(aes(fill = group), size = 2, position = position_jitterdodge())
+      }
     }
-    p <- p + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    p <- p + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8)) +
     xlab("") + ggtitle(title) +
     theme(panel.background = element_rect(fill = 'white', color='black'))
   if (printSig) {
