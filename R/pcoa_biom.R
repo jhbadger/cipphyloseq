@@ -52,6 +52,10 @@ pcoa_subset_biom <- function(biom, method = "PCoA", distance = "unifrac", sample
   ordu <- ordinate(biom, method = method, distance = distance, weighted = weighted)
   plt <- plot_ordination(biom, ordu, color = color_category, 
                          shape = shape_category, justDF = TRUE)
+  minX <- min(plt$Axis.1)*1.1
+  minY <- min(plt$Axis.2)*1.1
+  maxX <- max(plt$Axis.1)*1.1
+  maxY <- max(plt$Axis.2)*1.1
   plt <- plt[samples, ]
   plt <- plt[complete.cases(plt),]
   p <- ggplot(plt, aes_string(x="Axis.1", y="Axis.2", color=color_category,
@@ -66,8 +70,9 @@ pcoa_subset_biom <- function(biom, method = "PCoA", distance = "unifrac", sample
     p <- p + ggtitle(title)
   }
   p <- p + theme_light()
-  p <- p + 
-    xlab(paste0(paste0("Axis.1 [",
+  p <- p + coord_cartesian(xlim = c(minX, maxX),
+                           ylim = c(minY, maxY)) 
+  p <- p + xlab(paste0(paste0("Axis.1 [",
                        round(ordu$values$Relative_eig[1]*100,1)), "%]"))
   p + 
     ylab(paste0(paste0("Axis.2 [",
