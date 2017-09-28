@@ -6,7 +6,8 @@
 \usage{
 pcoa_subset_biom(biom, method = "PCoA", distance = "unifrac", samples,
   color_category = NULL, shape_category = NULL, weighted = FALSE,
-  title = NULL, colors = NULL, shapes = NULL, seed = 100)
+  title = NULL, colors = NULL, shapes = NULL, seed = 100,
+  xrange = NULL, yrange = NULL)
 }
 \arguments{
 \item{biom}{phyloseq object}
@@ -14,6 +15,8 @@ pcoa_subset_biom(biom, method = "PCoA", distance = "unifrac", samples,
 \item{method}{data reduction method to use (default PCoA; see phyloseq ordinate)}
 
 \item{distance}{distance measure to use (default unifrac)}
+
+\item{samples}{samples to include on plot}
 
 \item{color_category}{variable in sample data (if any) to color points by}
 
@@ -24,6 +27,12 @@ pcoa_subset_biom(biom, method = "PCoA", distance = "unifrac", samples,
 \item{title}{title of plot}
 
 \item{shapes}{vector of shapes to use if you don't like the defaults}
+
+\item{seed}{random number generator seed (default 100)}
+
+\item{xrange}{optional range of acceptable points to plot in terms of x values}
+
+\item{yrange}{optional range of acceptable points to plot in terms of y values}
 
 \item{color}{vector of colors to use if you don't like the defaults}
 }

@@ -31,9 +31,10 @@ pcoa_biom <- function(biom, method = "PCoA", distance = "unifrac", color_categor
 }
 
 #' Make a scatter PCA/PCOA plot of phyloseq object with complete biom and subset of samples -- useful for conserved axes
-#' 
+#'
 #' @param biom phyloseq object
 #' @param method data reduction method to use (default PCoA; see phyloseq ordinate)
+#' @param samples samples to include on plot
 #' @param distance distance measure to use (default unifrac)
 #' @param color_category variable in sample data (if any) to color points by
 #' @param shape_category variable in sample data (if any) to distinguish points by symbol
@@ -41,23 +42,34 @@ pcoa_biom <- function(biom, method = "PCoA", distance = "unifrac", color_categor
 #' @param title title of plot
 #' @param color vector of colors to use if you don't like the defaults
 #' @param shapes vector of shapes to use if you don't like the defaults
+#' @param seed random number generator seed (default 100)
+#' @param xrange optional range of acceptable points to plot in terms of x values
+#' @param yrange optional range of acceptable points to plot in terms of y values
 #' @export
 #' @examples
 #' pcoa_subset_biom
 
-pcoa_subset_biom <- function(biom, method = "PCoA", distance = "unifrac", samples, 
-                             color_category = NULL, shape_category=NULL, weighted = FALSE, 
-                             title = NULL, colors = NULL, shapes = NULL, seed = 100) {
+pcoa_subset_biom <- function(biom, method = "PCoA", distance = "unifrac", samples,
+                             color_category = NULL, shape_category=NULL, weighted = FALSE,
+                             title = NULL, colors = NULL, shapes = NULL, seed = 100,
+                             xrange = NULL, yrange = NULL) {
   set.seed(seed)
   ordu <- ordinate(biom, method = method, distance = distance, weighted = weighted)
-  plt <- plot_ordination(biom, ordu, color = color_category, 
+  plt <- plot_ordination(biom, ordu, color = color_category,
                          shape = shape_category, justDF = TRUE)
+  if (!is.null(xrange)) {
+    plt <- plt[plt$Axis.1 >= xrange[1] & plt$Axis.1 <= xrange[2],]
+  }
+  if (!is.null(yrange)) {
+    plt <- plt[plt$Axis.2 >= yrange[1] & plt$Axis.2 <= yrange[2],]
+  }
   minX <- min(plt$Axis.1)*1.1
   minY <- min(plt$Axis.2)*1.1
   maxX <- max(plt$Axis.1)*1.1
   maxY <- max(plt$Axis.2)*1.1
   plt <- plt[samples, ]
   plt <- plt[complete.cases(plt),]
+
   p <- ggplot(plt, aes_string(x="Axis.1", y="Axis.2", color=color_category,
                               shape = shape_category))+geom_point()
   if (!is.null(colors)) {
@@ -71,10 +83,10 @@ pcoa_subset_biom <- function(biom, method = "PCoA", distance = "unifrac", sample
   }
   p <- p + theme_light()
   p <- p + coord_cartesian(xlim = c(minX, maxX),
-                           ylim = c(minY, maxY)) 
+                           ylim = c(minY, maxY))
   p <- p + xlab(paste0(paste0("Axis.1 [",
                        round(ordu$values$Relative_eig[1]*100,1)), "%]"))
-  p + 
+  p +
     ylab(paste0(paste0("Axis.2 [",
                        round(ordu$values$Relative_eig[2]*100,1)), "%]"))
 }
