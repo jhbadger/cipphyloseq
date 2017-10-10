@@ -68,8 +68,7 @@ pcoa_subset_biom <- function(biom, method = "PCoA", distance = "unifrac", sample
   maxX <- max(plt$Axis.1)*1.1
   maxY <- max(plt$Axis.2)*1.1
   plt <- plt[samples, ]
-  plt <- plt[complete.cases(plt),]
-
+  
   p <- ggplot(plt, aes_string(x="Axis.1", y="Axis.2", color=color_category,
                               shape = shape_category))+geom_point()
   if (!is.null(colors)) {
