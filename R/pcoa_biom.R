@@ -15,7 +15,7 @@
 
 pcoa_biom <- function(biom, method = "PCoA", distance = "unifrac", color_category = NULL,
                       shape_category=NULL, weighted = FALSE, title = NULL, colors = NULL,
-                      shapes = NULL) {
+                      shapes = NULL, label_category = NULL) {
   ordu <- ordinate(biom, method = method, distance = distance, weighted = weighted)
   p <- plot_ordination(biom, ordu, color = color_category, shape = shape_category)
   if (!is.null(colors)) {
@@ -26,6 +26,9 @@ pcoa_biom <- function(biom, method = "PCoA", distance = "unifrac", color_categor
   }
   if (!is.null(title)) {
     p <- p + ggtitle(title)
+  }
+  if (!is.null(label_category)) {
+    p <- p + geom_text(aes(label = id), position = "dodge", size = 3)
   }
   p +  theme_light()
 }
@@ -68,7 +71,7 @@ pcoa_subset_biom <- function(biom, method = "PCoA", distance = "unifrac", sample
   maxX <- max(plt$Axis.1)*1.1
   maxY <- max(plt$Axis.2)*1.1
   plt <- plt[samples, ]
-  
+
   p <- ggplot(plt, aes_string(x="Axis.1", y="Axis.2", color=color_category,
                               shape = shape_category))+geom_point()
   if (!is.null(colors)) {

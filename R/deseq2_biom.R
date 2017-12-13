@@ -61,11 +61,11 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
 
 boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
                        glom = TRUE, printSig = TRUE, cex = 2,
-                       colors = rep("white",nlevels(factor(sample_data(subbiom)[[condition]]))*nrow(results)),
+                       colors = rep("white",nlevels(factor(sample_data(biom)[[condition]]))*nrow(results)),
                        show_points = TRUE, pointColors=NULL, pointShapes=NULL) {
   library(phyloseq)
   library(ggplot2)
-  nlev <- nlevels(factor(sample_data(subbiom)[[condition]]))
+  nlev <- nlevels(factor(sample_data(biom)[[condition]]))
   group <- sample_data(biom)[[condition]]
   if (glom) {
     biom <- tax_glom(biom, taxrank = taxlevel)
@@ -86,15 +86,15 @@ boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
     if (!is.null(pointColors)) {
       print(pointColors)
       otus[[pointColors]] <- as.factor(sample_data(norm)[otus$sample,][[pointColors]])
-      p <- p + geom_point(data=otus, aes_string(fill = "group", color=pointColors), 
+      p <- p + geom_point(data=otus, aes_string(fill = "group", color=pointColors),
                           size = 2, position = position_jitterdodge())
       p <- p + guides(color=guide_legend(title=pointColors))
     }
     if (!is.null(pointShapes)) {
       otus[[pointShapes]] <- as.factor(sample_data(norm)[otus$sample,][[pointShapes]])
-      p <- p + geom_point(aes_string(fill = "group", color=pointColors, shape=pointShapes), 
+      p <- p + geom_point(aes_string(fill = "group", color=pointColors, shape=pointShapes),
                           size = 2, position = position_jitterdodge())
-      p <- p + guides(color=guide_legend(title=pointColors), 
+      p <- p + guides(color=guide_legend(title=pointColors),
                       shape=guide_legend(title=pointShapes))
     }
   } else {
