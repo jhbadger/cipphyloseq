@@ -6,7 +6,7 @@
 \usage{
 pcoa_biom(biom, method = "PCoA", distance = "unifrac",
   color_category = NULL, shape_category = NULL, weighted = FALSE,
-  title = NULL, colors = NULL, shapes = NULL)
+  title = NULL, colors = NULL, shapes = NULL, label_category = NULL)
 }
 \arguments{
 \item{biom}{phyloseq object}

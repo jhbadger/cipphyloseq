@@ -6,7 +6,7 @@
 \usage{
 boxplot_biom(biom, taxlevel, condition, results, title = NULL, glom = TRUE,
   printSig = TRUE, cex = 2, colors = rep("white",
-  nlevels(factor(sample_data(subbiom)[[condition]])) * nrow(results)),
+  nlevels(factor(sample_data(biom)[[condition]])) * nrow(results)),
   show_points = TRUE, pointColors = NULL, pointShapes = NULL)
 }
 \arguments{
