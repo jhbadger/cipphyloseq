@@ -4,14 +4,18 @@
 \alias{heatmap_biom}
 \title{Make a heat map of a biom object with clustering}
 \usage{
-heatmap_biom(biom, rank, group, title = "")
+heatmap_biom(biom, rank = "LKT", group, title = "", ntop = 40)
 }
 \arguments{
 \item{biom}{phyloseq object}
 
 \item{rank}{string giving taxonomic rank to compare at}
 
-\item{group}{vector identifying the group for each slice}
+\item{group}{vector identifying the group}
+
+\item{title}{string giving the title}
+
+\item{ntop}{maximum number of rows}
 }
 \description{
 Make a heat map of a biom object with clustering
