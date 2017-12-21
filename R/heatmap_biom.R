@@ -11,7 +11,7 @@
 
 heatmap_biom <- function(biom, rank="LKT", group,
                           title="", ntop=40) {
-  phyloseq <- tax_glom(biom, rank)
+  biom <- tax_glom(biom, rank)
   taxa_names(biom) <- make.names(tax_table(biom)[,rank],
                                      unique = TRUE)
   ntop <- min(ntaxa(biom)/2, ntop)
