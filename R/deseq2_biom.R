@@ -61,11 +61,14 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
 
 boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
                        glom = TRUE, printSig = TRUE, cex = 2,
-                       colors = rep("white",nlevels(factor(sample_data(biom)[[condition]]))*nrow(results)),
-                       show_points = TRUE, pointColors=NULL, pointShapes=NULL) {
+                       colors = "white", show_points = TRUE, pointColors=NULL,
+                       pointShapes=NULL, minPer = 10) {
   library(phyloseq)
   library(ggplot2)
   nlev <- nlevels(factor(sample_data(biom)[[condition]]))
+  if (is.null(colors)) {
+    colors <- c("white")
+  }
   group <- sample_data(biom)[[condition]]
   if (glom) {
     biom <- tax_glom(biom, taxrank = taxlevel)
@@ -80,11 +83,15 @@ boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
   otus <- gather(otus, sample, abundance, -taxon)
   otus[[condition]] <- as.factor(sample_data(norm)[otus$sample,][[condition]])
   otus$group <- interaction(otus[[condition]],factor(otus[["taxon"]], levels=results[[taxlevel]]))
+  abundant_taxa <- aggregate(abundance~taxon, otus, max) %>% .[.$abundance>minPer,]
+  otus <- otus[otus$taxon %in% abundant_taxa$taxon, ]
+  results <- data.frame(results)
+  colors <- rep(colors, nlevels(factor(sample_data(biom)[[condition]]))*nrow(results))
+  results <- results[results[,taxlevel] %in% otus$taxon,]
   p <- ggplot(otus, aes(group, abundance, fill=group)) +
     geom_boxplot(outlier.colour = "white") + ylab("Relative Abundance (%)")
   if (show_points) {
     if (!is.null(pointColors)) {
-      print(pointColors)
       otus[[pointColors]] <- as.factor(sample_data(norm)[otus$sample,][[pointColors]])
       p <- p + geom_point(data=otus, aes_string(fill = "group", color=pointColors),
                           size = 2, position = position_jitterdodge())
