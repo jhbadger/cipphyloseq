@@ -13,12 +13,12 @@
 #' plot_bar2()
 
 plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercent = NULL,
-                       pickTaxa = NULL)
+                       pickTaxa = NULL, border_color="black")
 {
   library(phyloseq)
   library(ggplot2)
   physeq <- transform_sample_counts(biom, function(x) 100*x / sum(x))
-  
+
   if (!is.null(minPercent)) {
     physeq = filter_taxa(physeq, function(x) mean(x) > minPercent, TRUE)
     physeq <- transform_sample_counts(physeq, function(x) 100*x / sum(x))
@@ -34,7 +34,8 @@ plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercen
   mdf[,fill] <- factor(mdf[,fill], levels=fill_sum[order(-fill_sum$Abundance), fill])
   mdf$Sample <- factor(mdf$Sample, levels=sample_names(physeq))
   p <- ggplot(mdf, aes_string(x = "Sample", y = "Abundance", fill = fill))
-  p <- p + geom_bar(stat = "identity", position = "stack", color = "black", size = 0)
+  p <- p + geom_bar(stat = "identity", position = "stack", color = border_color,
+                    size = 0)
   p <- p + ylab("Relative Abundance (%)")
   p <- p + theme(axis.title.x=element_blank(),
                  axis.text.x=element_blank(),  axis.ticks.x=element_blank())

@@ -26,6 +26,6 @@ heatmap_biom <- function(biom, rank="LKT", group,
                 key=FALSE, main=title, cex.main=0.35)
   cores <- unique(heatmapColColors)
   labels <- unique(trials)
-  legend("topright", inset=c(1,0), legend=labels, fill=cores,
+  legend("bottom", legend=labels, fill=cores,
          border=TRUE, bty="n", y.intersp = 0.7, cex=0.5)
 }
