@@ -5,9 +5,8 @@
 \title{Make a boxplot of significant OTUs found with my_deseq2}
 \usage{
 boxplot_biom(biom, taxlevel, condition, results, title = NULL, glom = TRUE,
-  printSig = TRUE, cex = 2, colors = rep("white",
-  nlevels(factor(sample_data(biom)[[condition]])) * nrow(results)),
-  show_points = TRUE, pointColors = NULL, pointShapes = NULL)
+  printSig = TRUE, cex = 2, colors = "white", show_points = TRUE,
+  pointColors = NULL, pointShapes = NULL, minPer = 10)
 }
 \arguments{
 \item{biom}{a phyloseq object.}

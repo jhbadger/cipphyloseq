@@ -13,21 +13,36 @@
 #' plot_bar2()
 
 plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercent = NULL,
-                       pickTaxa = NULL, border_color="black")
+                       pickTaxa = NULL, border_color="black", log=FALSE, ppm=FALSE, rbiom=FALSE)
 {
-  library(phyloseq)
-  library(ggplot2)
-  physeq <- transform_sample_counts(biom, function(x) 100*x / sum(x))
+  units <- 100
+  ylabel <- "Relative Abundance (%)"
+  if (ppm) {
+    units <- 1000000
+    ylabel <- "Relative Abundance (ppm)"
+    if (!is.null(minPercent)) {
+      minPercent <- minPercent * 10000
+    }
+  }
+  physeq <- transform_sample_counts(biom, function(x) units*x / sum(x))
 
   if (!is.null(minPercent)) {
     physeq = filter_taxa(physeq, function(x) mean(x) > minPercent, TRUE)
-    physeq <- transform_sample_counts(physeq, function(x) 100*x / sum(x))
+    physeq <- transform_sample_counts(physeq, function(x) units*x / sum(x))
   }
   if (!is.null(pickTaxa)) {
     otus <- tax_table(physeq) %>% as.data.frame
     otus <- row.names(otus)[otus[,fill] %in% pickTaxa]
     physeq <- prune_taxa(otus, physeq)
-    physeq <- transform_sample_counts(physeq, function(x) 100*x / sum(x))
+    physeq <- transform_sample_counts(physeq, function(x) units*x / sum(x))
+  }
+  if (log) {
+    otu_table(physeq)[otu_table(physeq)==0] = 1
+    otu_table(physeq) <- log(otu_table(physeq))
+    physeq <- transform_sample_counts(physeq, function(x) log(units)*x / sum(x))
+  }
+  if (rbiom) {
+    return(physeq)
   }
   mdf <- psmelt(tax_glom(physeq, fill))
   fill_sum <- aggregate(as.formula(paste("Abundance ~",fill)), mdf, sum)
@@ -36,7 +51,7 @@ plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercen
   p <- ggplot(mdf, aes_string(x = "Sample", y = "Abundance", fill = fill))
   p <- p + geom_bar(stat = "identity", position = "stack", color = border_color,
                     size = 0)
-  p <- p + ylab("Relative Abundance (%)")
+  p <- p + ylab(ylabel)
   p <- p + theme(axis.title.x=element_blank(),
                  axis.text.x=element_blank(),  axis.ticks.x=element_blank())
   p <- p + theme(plot.margin = unit(c(0, 1, 1, 0.5), "lines"))

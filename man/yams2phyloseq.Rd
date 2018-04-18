@@ -4,7 +4,8 @@
 \alias{yams2phyloseq}
 \title{Create a phyloseq Object from YAMS16 output}
 \usage{
-yams2phyloseq(counts, taxa, metadata = NULL, tree = NULL)
+yams2phyloseq(counts, taxa, metadata = NULL, tree = NULL,
+  splitSemi = FALSE)
 }
 \arguments{
 \item{counts}{unit_table.tsv count data}

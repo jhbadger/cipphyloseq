@@ -7,7 +7,8 @@ Depends: tidyverse,
     phyloseq,
     metagenomeSeq,
     DESeq2,
-    reshape2
+    reshape2,
+    biomformat
 License: MIT
 Encoding: UTF-8
 LazyData: true
@@ -16,4 +17,5 @@ Imports: tidyverse,
     phyloseq,
     metagenomeSeq,
     DESeq2,
-    reshape2
+    reshape2,
+    biomformat

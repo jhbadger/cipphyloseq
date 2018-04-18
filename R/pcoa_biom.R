@@ -30,6 +30,11 @@ pcoa_biom <- function(biom, method = "PCoA", distance = "unifrac", color_categor
   if (!is.null(label_category)) {
     p <- p + geom_text(aes(label = id), position = "dodge", size = 3)
   }
+  p <- p + xlab(paste0(paste0("PC#1 [",
+                              round(ordu$values$Relative_eig[1]*100,1)), "%]"))
+  p <- p +
+    ylab(paste0(paste0("PC#2 [",
+                       round(ordu$values$Relative_eig[2]*100,1)), "%]"))
   p +  theme_light()
 }
 
@@ -86,9 +91,9 @@ pcoa_subset_biom <- function(biom, method = "PCoA", distance = "unifrac", sample
   p <- p + theme_light()
   p <- p + coord_cartesian(xlim = c(minX, maxX),
                            ylim = c(minY, maxY))
-  p <- p + xlab(paste0(paste0("Axis.1 [",
+  p <- p + xlab(paste0(paste0("PC#1 [",
                        round(ordu$values$Relative_eig[1]*100,1)), "%]"))
   p +
-    ylab(paste0(paste0("Axis.2 [",
+    ylab(paste0(paste0("PC#2 [",
                        round(ordu$values$Relative_eig[2]*100,1)), "%]"))
 }

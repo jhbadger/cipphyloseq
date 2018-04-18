@@ -5,7 +5,8 @@
 \title{More flexible version of phyloseq's plot_bar}
 \usage{
 plot_bar2(biom, fill = NULL, title = NULL, colors = NULL,
-  minPercent = NULL, pickTaxa = NULL)
+  minPercent = NULL, pickTaxa = NULL, border_color = "black",
+  log = FALSE, ppm = FALSE, rbiom = FALSE)
 }
 \arguments{
 \item{biom}{a phyloseq object.}
