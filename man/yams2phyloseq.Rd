@@ -4,8 +4,7 @@
 \alias{yams2phyloseq}
 \title{Create a phyloseq Object from YAMS16 output}
 \usage{
-yams2phyloseq(counts, taxa, metadata = NULL, tree = NULL,
-  splitSemi = FALSE)
+yams2phyloseq(counts, taxa, metadata = NULL, tree = NULL, ppm = FALSE)
 }
 \arguments{
 \item{counts}{unit_table.tsv count data}
@@ -15,6 +14,8 @@ yams2phyloseq(counts, taxa, metadata = NULL, tree = NULL,
 \item{metadata}{optional metadata csv/tsv}
 
 \item{tree}{optional tree for Unifrac computation.}
+
+\item{ppm}{convert to parts per million}
 }
 \description{
 Create a phyloseq Object from YAMS16 output

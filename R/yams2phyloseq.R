@@ -4,21 +4,16 @@
 #' @param taxa taxa_16S_cons.tsv taxonomy data
 #' @param metadata optional metadata csv/tsv
 #' @param tree optional tree for Unifrac computation.
+#' @param ppm convert to parts per million
 #' @export
 #' @examples
 #' yams2phyloseq()
 
-yams2phyloseq <- function(counts, taxa, metadata = NULL, tree = NULL, splitSemi=FALSE) {
+yams2phyloseq <- function(counts, taxa, metadata = NULL, tree = NULL, ppm = FALSE) {
   otus <- as.matrix(read.table(counts, sep="\t",row.names = 1,
                                check.names = FALSE, header = TRUE))
   taxtable <- as.matrix(read.table(taxa, sep="\t",row.names = 1,
                                    check.names = FALSE, header = TRUE))
-  if (splitSemi) {
-    ts <- str_split_fixed(taxtable[,1], fixed(';'), n=8)[,1:7]
-    row.names(ts) <- rownames(taxtable)
-    colnames(ts) <- c("Rank0","Rank1","Rank2","Rank3","Rank4","Rank5","Rank6")
-    taxtable <- ts
-  }
   biom <- phyloseq(otu_table(otus,taxa_are_rows = TRUE), tax_table(taxtable))
   if (!is.null(metadata)) {
     if (!is.na(str_locate(metadata, "csv")[1])) {
@@ -32,6 +27,10 @@ yams2phyloseq <- function(counts, taxa, metadata = NULL, tree = NULL, splitSemi=
   }
   if (!is.null(tree)) {
     phy_tree(biom) <- read_tree(tree)
+  }
+  if (ppm) {
+    biom <- transform_sample_counts(biom, function(x)
+      round(1E6 * x/sum(x)))
   }
   biom
 }
@@ -51,7 +50,7 @@ qiime2MR <- function(tableqza, taxonomyqza, metadata, ppm=TRUE) {
     dir.create(tmpd)
   }
   system(str_c("unzip -d ", tmpd, " -j ",
-    tableqza, " *.biom"), 
+    tableqza, " *.biom"),
     ignore.stdout = TRUE, ignore.stderr = TRUE)
   biom <- read_biom(str_c(tmpd, "/feature-table.biom"))
   biom <- biom2MRexperiment(biom)
@@ -60,7 +59,7 @@ qiime2MR <- function(tableqza, taxonomyqza, metadata, ppm=TRUE) {
     counts <- round(sweep(counts, 2, colSums(counts), FUN="/")*1e6)
     biom <- newMRexperiment(counts=counts)
   }
-  system(str_c("unzip -d ", tmpd, " -j ",taxonomyqza, " *.tsv"), 
+  system(str_c("unzip -d ", tmpd, " -j ",taxonomyqza, " *.tsv"),
          ignore.stdout = TRUE, ignore.stderr = TRUE)
   taxonomy <- read.table(str_c(tmpd, "/taxonomy.tsv"), sep="\t", header=TRUE, row.names = 1)
   system(str_c("rm -rf ", tmpd))
@@ -70,16 +69,16 @@ qiime2MR <- function(tableqza, taxonomyqza, metadata, ppm=TRUE) {
   ts$LKT <- apply(ts, 1, function(x) {
     y=str_replace_all(x,str_c("uncultured bacterium|uncultured organism|", "
                               uncultured$|unidentified|Incertae Sedis"),"")
-    ifelse(length(which(str_length(y) < 6))>0, 
+    ifelse(length(which(str_length(y) < 6))>0,
            y[min(which(str_length(y) < 6)) - 1], y[7])})
-    
+
   fData(biom) <- ts
-  metadata <- read.table(metadata, 
+  metadata <- read.table(metadata,
                          sep = ifelse(is.na(
-                           str_locate(metadata, "csv")[1]), 
+                           str_locate(metadata, "csv")[1]),
                            "\t",","),
-                         row.names = 1, 
-                         check.names = FALSE, 
+                         row.names = 1,
+                         check.names = FALSE,
                          header = TRUE)
   pData(biom) <- metadata
   biom
@@ -97,7 +96,7 @@ mr2phyloseq <- function(mrexp, unrootedtreeqza=NULL) {
   counts <- MRcounts(mrexp)
   metadata <- pData(mrexp)
   taxonomy <- fData(mrexp)
-  phy <- phyloseq(otu_table(counts, taxa_are_rows = TRUE), 
+  phy <- phyloseq(otu_table(counts, taxa_are_rows = TRUE),
                   sample_data(metadata))
   tax_table(phy) <- as.matrix(taxonomy[taxa_names(phy),])
   if (!is.null(unrootedtreeqza)) {
