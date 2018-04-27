@@ -8,12 +8,19 @@
 #' @param colors vector of color names to use
 #' @param minPercent optional limit to exclude low abundant taxa
 #' @param pickTaxa optional list of taxa to limit graph to.
+#' @param excludeTaxa optional list of taxa to exclude
+#' @param border_color border color of bars
+#' @param log log transform data
+#' @param ppm translate data into parts per million rather than percent
+#' @param rbiom return a phyloseq data object
+#' @param showPercents limit graph to c(min,max) percent
 #' @export
 #' @examples
 #' plot_bar2()
 
 plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercent = NULL,
-                       pickTaxa = NULL, border_color="black", log=FALSE, ppm=FALSE, rbiom=FALSE)
+                       pickTaxa = NULL, excludeTaxa = NULL, border_color="black", log=FALSE, ppm=FALSE, rbiom=FALSE,
+                       showPercents = NULL)
 {
   units <- 100
   ylabel <- "Relative Abundance (%)"
@@ -33,6 +40,12 @@ plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercen
   if (!is.null(pickTaxa)) {
     otus <- tax_table(physeq) %>% as.data.frame
     otus <- row.names(otus)[otus[,fill] %in% pickTaxa]
+    physeq <- prune_taxa(otus, physeq)
+    physeq <- transform_sample_counts(physeq, function(x) units*x / sum(x))
+  }
+  if (!is.null(excludeTaxa)) {
+    otus <- tax_table(physeq) %>% as.data.frame
+    otus <- row.names(otus)[!(otus[,fill] %in% excludeTaxa)]
     physeq <- prune_taxa(otus, physeq)
     physeq <- transform_sample_counts(physeq, function(x) units*x / sum(x))
   }
@@ -62,7 +75,11 @@ plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercen
   if (!is.null(colors)) {
     p <- p + scale_fill_manual(values=colors)
   }
+  if (!is_null(showPercents)) {
+    p <- p + coord_cartesian(ylim = c(showPercents[1], showPercents[2]))
+  }
   p <- p + theme(panel.background = element_rect(fill = 'white', colour = 'white'))
+  p <- p + theme(plot.margin = margin(c(1, 1, 3, 1), unit="lines"))
   return(p)
 }
 

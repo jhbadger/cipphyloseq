@@ -5,8 +5,9 @@
 \title{More flexible version of phyloseq's plot_bar}
 \usage{
 plot_bar2(biom, fill = NULL, title = NULL, colors = NULL,
-  minPercent = NULL, pickTaxa = NULL, border_color = "black",
-  log = FALSE, ppm = FALSE, rbiom = FALSE)
+  minPercent = NULL, pickTaxa = NULL, excludeTaxa = NULL,
+  border_color = "black", log = FALSE, ppm = FALSE, rbiom = FALSE,
+  showPercents = NULL)
 }
 \arguments{
 \item{biom}{a phyloseq object.}
@@ -20,6 +21,18 @@ plot_bar2(biom, fill = NULL, title = NULL, colors = NULL,
 \item{minPercent}{optional limit to exclude low abundant taxa}
 
 \item{pickTaxa}{optional list of taxa to limit graph to.}
+
+\item{excludeTaxa}{optional list of taxa to exclude}
+
+\item{border_color}{border color of bars}
+
+\item{log}{log transform data}
+
+\item{ppm}{translate data into parts per million rather than percent}
+
+\item{rbiom}{return a phyloseq data object}
+
+\item{showPercents}{limit graph to c(min,max) percent}
 }
 \description{
 More flexible version of phyloseq's plot_bar
