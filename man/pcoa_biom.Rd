@@ -6,7 +6,8 @@
 \usage{
 pcoa_biom(biom, method = "PCoA", distance = "unifrac",
   color_category = NULL, shape_category = NULL, weighted = FALSE,
-  title = NULL, colors = NULL, shapes = NULL, label_category = NULL)
+  title = NULL, colors = NULL, shapes = NULL, label_category = NULL,
+  point_size = 1)
 }
 \arguments{
 \item{biom}{phyloseq object}
@@ -24,6 +25,10 @@ pcoa_biom(biom, method = "PCoA", distance = "unifrac",
 \item{title}{title of plot}
 
 \item{shapes}{vector of shapes to use if you don't like the defaults}
+
+\item{label_category}{variable in sample data (if any) to label points}
+
+\item{point_size}{size of points on graph}
 
 \item{color}{vector of colors to use if you don't like the defaults}
 }

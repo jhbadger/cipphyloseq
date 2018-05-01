@@ -9,15 +9,18 @@
 #' @param title title of plot
 #' @param color vector of colors to use if you don't like the defaults
 #' @param shapes vector of shapes to use if you don't like the defaults
+#' @param label_category variable in sample data (if any) to label points
+#' @param point_size size of points on graph
 #' @export
 #' @examples
 #' pcoa_biom()
 
 pcoa_biom <- function(biom, method = "PCoA", distance = "unifrac", color_category = NULL,
                       shape_category=NULL, weighted = FALSE, title = NULL, colors = NULL,
-                      shapes = NULL, label_category = NULL) {
+                      shapes = NULL, label_category = NULL, point_size = 1) {
   ordu <- ordinate(biom, method = method, distance = distance, weighted = weighted)
-  p <- plot_ordination(biom, ordu, color = color_category, shape = shape_category)
+  p <- plot_ordination(biom, ordu, color = color_category, shape = shape_category,
+                      )
   if (!is.null(colors)) {
     p <- p + scale_color_manual(values=colors)
   }
@@ -35,7 +38,7 @@ pcoa_biom <- function(biom, method = "PCoA", distance = "unifrac", color_categor
   p <- p +
     ylab(paste0(paste0("PC#2 [",
                        round(ordu$values$Relative_eig[2]*100,1)), "%]"))
-  p +  theme_light()
+  p +  theme_light() + geom_point(size = point_size)
 }
 
 #' Make a scatter PCA/PCOA plot of phyloseq object with complete biom and subset of samples -- useful for conserved axes
