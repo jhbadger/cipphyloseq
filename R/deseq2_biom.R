@@ -75,7 +75,7 @@ boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
   }
   norm <- transform_sample_counts(biom, function(x) 100*x / sum(x))
   if (taxlevel !="OTU") {
-    taxa_names(norm) <- make.unique(as.character(as.data.frame(tax_table(norm))[[taxlevel]]))
+    taxa_names(norm) <-  make.unique(tax_table(norm)[,taxlevel])
   }
   norm <- prune_taxa(results[[taxlevel]] %>% as.character, norm)
   otus <- as.data.frame(otu_table(norm))
