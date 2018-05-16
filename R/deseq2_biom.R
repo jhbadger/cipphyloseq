@@ -10,7 +10,8 @@
 #' @examples
 #' deseq2_biom()
 
-deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=TRUE) {
+deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=TRUE,
+                        pseudocounts = 0) {
   library(phyloseq)
   library(DESeq2)
   if (glom) {
@@ -18,9 +19,10 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
   }
   norm <-  transform_sample_counts(biom, function(x) 100*x / sum(x))
   biom <- prune_taxa(taxa_names(norm)[rowMeans(as.data.frame(otu_table(norm)))>threshold], biom)
+  biom <- transform_sample_counts(biom, function(x) x+pseudocounts)
   lvls <- unique(unlist(sample_data(biom)[, group]))
   diagdds <- phyloseq_to_deseq2(biom, as.formula(paste0("~",group)))
-  diagdds <- DESeq(diagdds, test="Wald", fitType="parametric")
+  diagdds <- DESeq(diagdds, test="Wald", fitType="mean")
   res <- results(diagdds, cooksCutoff = FALSE)
   sigtab <- res[which(res$padj < alpha), ]
   if (nrow(sigtab) > 0 ) {
