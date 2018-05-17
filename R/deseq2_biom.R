@@ -35,7 +35,7 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
     if (taxlevel == "OTU") {
       sigtab$OTU <- rownames(sigtab)
     }
-    data <- select(as.tibble(sigtab), c("log2FoldChange", "lfcSE", "pvalue", "padj", taxlevel)) %>%
+    data <- sigtab[,c("log2FoldChange", "lfcSE", "pvalue", "padj", taxlevel)] %>%
       arrange(padj) %>% filter_(expr)
     if (taxlevel == "OTU") {
       data$Taxon <- apply(data, 1, function(x){tax_table(biom)[x["OTU"],"Rank6"]})
