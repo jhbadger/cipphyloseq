@@ -11,7 +11,7 @@
 #' deseq2_biom()
 
 deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=TRUE,
-                        pseudocounts = 0) {
+                        pseudocounts = 0, maxgroups = 5) {
   library(phyloseq)
   library(DESeq2)
   if (glom) {
@@ -40,7 +40,7 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
     if (taxlevel == "OTU") {
       data$Taxon <- apply(data, 1, function(x){tax_table(biom)[x["OTU"],"Rank6"]})
     }
-    data
+    data[1:min(nrow(data),maxgroups),]
   }
   else {
     data.frame()
