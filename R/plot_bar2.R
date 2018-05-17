@@ -123,6 +123,8 @@ my_bracket <- function(plot, text, x, xend, y, cex = 2.2) {
 
 auto_bracket <- function(plot, matching, y, categories, cex = 2.2, text = matching) {
   x <- min(which(categories == matching))
-  xend <- max(which(categories == matching))
-  my_bracket(plot, text, x, xend, y, cex)
+  if (!is.infinite(x)) {
+    xend <- max(which(categories == matching))
+    my_bracket(plot, text, x, xend, y, cex)
+  } else plot
 }
