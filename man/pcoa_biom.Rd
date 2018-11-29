@@ -6,7 +6,8 @@
 \usage{
 pcoa_biom(biom, method = "PCoA", distance = "unifrac",
   color_category = NULL, shape_category = NULL, weighted = FALSE,
-  title = NULL, colors = NULL, shapes = NULL, label_category = NULL,
+  title = NULL, colors = NULL, shapes = NULL,
+  label_category = NULL, order_category = NULL, permanova = FALSE,
   point_size = 1)
 }
 \arguments{
@@ -27,6 +28,8 @@ pcoa_biom(biom, method = "PCoA", distance = "unifrac",
 \item{shapes}{vector of shapes to use if you don't like the defaults}
 
 \item{label_category}{variable in sample data (if any) to label points}
+
+\item{permanova}{-- include PERMANOVA analysis on color_category}
 
 \item{point_size}{size of points on graph}
 

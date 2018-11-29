@@ -10,6 +10,7 @@
 #' @param color vector of colors to use if you don't like the defaults
 #' @param shapes vector of shapes to use if you don't like the defaults
 #' @param label_category variable in sample data (if any) to label points
+#' @param permanova -- include PERMANOVA analysis on color_category
 #' @param point_size size of points on graph
 #' @export
 #' @examples
@@ -17,15 +18,27 @@
 
 pcoa_biom <- function(biom, method = "PCoA", distance = "unifrac", color_category = NULL,
                       shape_category=NULL, weighted = FALSE, title = NULL, colors = NULL,
-                      shapes = NULL, label_category = NULL, point_size = 1) {
+                      shapes = NULL, label_category = NULL, order_category=NULL,
+                      permanova=FALSE,point_size = 1) {
   ordu <- ordinate(biom, method = method, distance = distance, weighted = weighted)
-  p <- plot_ordination(biom, ordu, color = color_category, shape = shape_category,
-                      )
+  p <- plot_ordination(biom, ordu, color = color_category, shape = shape_category)
   if (!is.null(colors)) {
     p <- p + scale_color_manual(values=colors)
   }
   if(!is.null(shapes)) {
     p <- p + scale_shape_manual(values=shapes)
+  }
+  if (!isFALSE(permanova)) {
+    pdist <- phyloseq::distance(biom, method = distance, weighted=weighted)
+    sdata <- data.frame(sample_data(biom))
+    permanova <- adonis(as.formula(str_c("pdist ~ ", color_category)),
+                        data = sdata)$aov.tab$`Pr(>F)`[1]
+  }
+  if (!is.null(title)) {
+    if (!isFALSE(permanova)) {
+      title <- str_c(title, " p < ", permanova)
+    }
+    p <- p + ggtitle(title)
   }
   if (!is.null(title)) {
     p <- p + ggtitle(title)
@@ -87,9 +100,6 @@ pcoa_subset_biom <- function(biom, method = "PCoA", distance = "unifrac", sample
   }
   if(!is.null(shapes)) {
     p <- p + scale_shape_manual(values=shapes)
-  }
-  if (!is.null(title)) {
-    p <- p + ggtitle(title)
   }
   p <- p + theme_light()
   p <- p + coord_cartesian(xlim = c(minX, maxX),

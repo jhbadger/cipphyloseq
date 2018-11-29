@@ -19,76 +19,83 @@
 #' plot_bar2()
 
 plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercent = NULL,
-                       pickTaxa = NULL, excludeTaxa = NULL, border_color="black", log=FALSE, ppm=FALSE, rbiom=FALSE,
-                       showPercents = NULL)
+                             pickTaxa = NULL, excludeTaxa = NULL, border_color = "black",
+                             log = FALSE, ppm = FALSE, rbiom = FALSE, showPercents = NULL)
 {
   units <- 100
   ylabel <- "Relative Abundance (%)"
   if (ppm) {
-    units <- 1000000
+    units <- 1e+06
     ylabel <- "Relative Abundance (ppm)"
     if (!is.null(minPercent)) {
       minPercent <- minPercent * 10000
     }
   }
-  physeq <- transform_sample_counts(biom, function(x) units*x / sum(x))
-
+  physeq <- transform_sample_counts(biom, function(x) units *
+                                      x/sum(x))
   if (!is.null(pickTaxa)) {
     otus <- tax_table(physeq) %>% as.data.frame
-    otus <- row.names(otus)[otus[,fill] %in% pickTaxa]
+    otus <- row.names(otus)[otus[, fill] %in% pickTaxa]
     physeq <- prune_taxa(otus, physeq)
-    physeq <- transform_sample_counts(physeq, function(x) units*x / sum(x))
+    physeq <- transform_sample_counts(physeq, function(x) units *
+                                        x/sum(x))
   }
   if (!is.null(excludeTaxa)) {
     otus <- tax_table(physeq) %>% as.data.frame
-    otus <- row.names(otus)[!(otus[,fill] %in% excludeTaxa)]
+    otus <- row.names(otus)[!(otus[, fill] %in% excludeTaxa)]
     physeq <- prune_taxa(otus, physeq)
-    physeq <- transform_sample_counts(physeq, function(x) units*x / sum(x))
+    physeq <- transform_sample_counts(physeq, function(x) units *
+                                        x/sum(x))
   }
   if (log) {
-    otu_table(physeq)[otu_table(physeq)==0] = 1
+    otu_table(physeq)[otu_table(physeq) == 0] = 1
     otu_table(physeq) <- log(otu_table(physeq))
-    physeq <- transform_sample_counts(physeq, function(x) log(units)*x / sum(x))
+    physeq <- transform_sample_counts(physeq, function(x) log(units) *
+                                        x/sum(x))
+  }
+  physeq <- tax_glom(physeq, fill)
+  if (!is.null(minPercent)) {
+    physeq <- filter_taxa(physeq, function(x) mean(x) > minPercent,
+                         TRUE)
+    physeq <- transform_sample_counts(physeq, function(x) round(x))
+    misc_counts <- units-colSums(otu_table(physeq))
+    new_table <- rbind(otu_table(physeq), Misc_Low_Abundance=misc_counts)
+    new_tax <- rbind(as.data.frame(tax_table(physeq), stringsAsFactors = FALSE),
+                     Misc_Low_Abundance = rep("Misc_Low_Abundance", ncol(tax_table(physeq))))
+    physeq <- phyloseq(otu_table(new_table, taxa_are_rows = TRUE),
+                       tax_table(as.matrix(new_tax)))
   }
   if (rbiom) {
     return(physeq)
   }
-
-  physeq <- tax_glom(physeq, fill)
-  if (!is.null(minPercent)) {
-    physeq = filter_taxa(physeq, function(x) mean(x) > minPercent, TRUE)
-    misc_counts <- sapply(colSums(otu_table(physeq)), function(x) units-x)
-    new_table <- rbind(as.data.frame(otu_table(physeq), stringsAsFactors=FALSE),
-                       Misc_Low_Abundance=misc_counts)
-    new_tax <- rbind(as.data.frame(tax_table(physeq), stringsAsFactors=FALSE),
-                     Misc_Low_Abundance=rep("Misc_Low_Abundance", ncol(tax_table(physeq))))
-    physeq <- phyloseq(otu_table(new_table, taxa_are_rows = TRUE),
-                       tax_table(as.matrix(new_tax)))
-    physeq = filter_taxa(physeq, function(x) mean(x) > minPercent, TRUE)
-  }
   mdf <- psmelt(physeq)
-  fill_sum <- aggregate(as.formula(paste("Abundance ~",fill)), mdf, sum)
-  mdf[,fill] <- factor(mdf[,fill], levels=fill_sum[order(-fill_sum$Abundance), fill])
-  mdf$Sample <- factor(mdf$Sample, levels=sample_names(physeq))
-  p <- ggplot(mdf, aes_string(x = "Sample", y = "Abundance", fill = fill))
-  p <- p + geom_bar(stat = "identity", position = "stack", color = border_color,
-                    size = 0)
+  fill_sum <- aggregate(as.formula(paste("Abundance ~", fill)),
+                        mdf, sum)
+  mdf[, fill] <- factor(mdf[, fill], levels = fill_sum[order(-fill_sum$Abundance),
+                                                       fill])
+  mdf$Sample <- factor(mdf$Sample, levels = sample_names(physeq))
+  p <- ggplot(mdf, aes_string(x = "Sample", y = "Abundance",
+                              fill = fill))
+  p <- p + geom_bar(stat = "identity", position = "stack",
+                    color = border_color, size = 0)
   p <- p + ylab(ylabel)
-  p <- p + theme(axis.title.x=element_blank(),
-                 axis.text.x=element_blank(),  axis.ticks.x=element_blank())
+  p <- p + theme(axis.title.x = element_blank(), axis.text.x = element_blank(),
+                 axis.ticks.x = element_blank())
   p <- p + theme(plot.margin = unit(c(0, 1, 1, 0.5), "lines"))
-  p <- p + theme(strip.background = element_rect(fill = "white", colour = NA))
+  p <- p + theme(strip.background = element_rect(fill = "white",
+                                                 colour = NA))
   if (!is.null(title)) {
     p <- p + ggtitle(title)
   }
   if (!is.null(colors)) {
-    p <- p + scale_fill_manual(values=colors)
+    p <- p + scale_fill_manual(values = colors)
   }
   if (!is_null(showPercents)) {
     p <- p + coord_cartesian(ylim = c(showPercents[1], showPercents[2]))
   }
-  p <- p + theme(panel.background = element_rect(fill = 'white', colour = 'white'))
-  p <- p + theme(plot.margin = margin(c(1, 1, 3, 1), unit="lines"))
+  p <- p + theme(panel.background = element_rect(fill = "white",
+                                                 colour = "white"))
+  p <- p + theme(plot.margin = margin(c(1, 1, 3, 1), unit = "lines"))
   p <- p + theme(axis.line = element_blank())
   return(p)
 }

@@ -5,7 +5,7 @@
 \title{Run DESeq2 on a phyloseq object and return tibble of significantly abundant OTUs}
 \usage{
 deseq2_biom(biom, taxlevel, group, alpha = 0.01, threshold = 1,
-  glom = TRUE)
+  glom = TRUE, pseudocounts = 0, maxgroups = 5)
 }
 \arguments{
 \item{biom}{a phyloseq object.}

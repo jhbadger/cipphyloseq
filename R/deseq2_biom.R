@@ -64,7 +64,7 @@ deseq2_biom <- function(biom, taxlevel, group, alpha = 0.01, threshold=1, glom=T
 boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
                        glom = TRUE, printSig = TRUE, cex = 2,
                        colors = "white", show_points = TRUE, pointColors=NULL,
-                       pointShapes=NULL, minPer = 10) {
+                       pointShapes=NULL, minPer = 10, log=FALSE) {
   library(phyloseq)
   library(ggplot2)
   nlev <- nlevels(factor(sample_data(biom)[[condition]]))
@@ -90,24 +90,16 @@ boxplot_biom <- function(biom, taxlevel, condition, results, title=NULL,
   results <- data.frame(results)
   colors <- rep(colors, nlevels(factor(sample_data(biom)[[condition]]))*nrow(results))
   results <- results[results[,taxlevel] %in% otus$taxon,]
-  p <- ggplot(otus, aes(group, abundance, fill=group)) +
-    geom_boxplot(outlier.colour = "white") + ylab("Relative Abundance (%)")
-  if (show_points) {
-    if (!is.null(pointColors)) {
-      otus[[pointColors]] <- as.factor(sample_data(norm)[otus$sample,][[pointColors]])
-      p <- p + geom_point(data=otus, aes_string(fill = "group", color=pointColors),
-                          size = 2, position = position_jitterdodge())
-      p <- p + guides(color=guide_legend(title=pointColors))
-    }
-    if (!is.null(pointShapes)) {
-      otus[[pointShapes]] <- as.factor(sample_data(norm)[otus$sample,][[pointShapes]])
-      p <- p + geom_point(aes_string(fill = "group", color=pointColors, shape=pointShapes),
-                          size = 2, position = position_jitterdodge())
-      p <- p + guides(color=guide_legend(title=pointColors),
-                      shape=guide_legend(title=pointShapes))
-    }
+  if (log) {
+    otus$abundance <- log2((otus$abundance*100)+1)
+    ylab = "log2(Relative abundance)"
   } else {
-    p <- p + geom_point(aes(fill = group), size = 2, position = position_jitterdodge())
+    ylab = "Relative Abundance (%)"
+  }
+  p <- ggplot(otus, aes(group, abundance, fill=group))
+  p <- p + geom_boxplot(outlier.colour = "white") + ylab(ylab)
+  if (show_points) {
+    p <- p + geom_jitter()
   }
   p <- p + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8)) +
   xlab("") + ggtitle(title) +
