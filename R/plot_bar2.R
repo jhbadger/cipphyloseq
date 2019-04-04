@@ -20,7 +20,8 @@
 
 plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercent = NULL,
                              pickTaxa = NULL, excludeTaxa = NULL, border_color = "black",
-                             log = FALSE, ppm = FALSE, rbiom = FALSE, showPercents = NULL)
+                             log = FALSE, ppm = FALSE, rbiom = FALSE, showPercents = NULL,
+                       nomisc=FALSE)
 {
   units <- 100
   ylabel <- "Relative Abundance (%)"
@@ -60,10 +61,15 @@ plot_bar2 <- function (biom, fill = NULL, title = NULL, colors = NULL, minPercen
     physeq <- transform_sample_counts(physeq, function(x) round(x))
     misc_counts <- units-colSums(otu_table(physeq))
     new_table <- rbind(otu_table(physeq), Misc_Low_Abundance=misc_counts)
-    new_tax <- rbind(as.data.frame(tax_table(physeq), stringsAsFactors = FALSE),
-                     Misc_Low_Abundance = rep("Misc_Low_Abundance", ncol(tax_table(physeq))))
-    physeq <- phyloseq(otu_table(new_table, taxa_are_rows = TRUE),
-                       tax_table(as.matrix(new_tax)))
+    if (!nomisc) {
+      new_tax <- rbind(as.data.frame(tax_table(physeq), stringsAsFactors = FALSE),
+                       Misc_Low_Abundance = rep("Misc_Low_Abundance", ncol(tax_table(physeq))))
+      physeq <- phyloseq(otu_table(new_table, taxa_are_rows = TRUE),
+                         tax_table(as.matrix(new_tax)))
+    } else {
+      physeq <- transform_sample_counts(physeq, function(x) units *
+                                          x/sum(x))
+    }
   }
   if (rbiom) {
     return(physeq)

@@ -7,7 +7,7 @@
 plot_bar2(biom, fill = NULL, title = NULL, colors = NULL,
   minPercent = NULL, pickTaxa = NULL, excludeTaxa = NULL,
   border_color = "black", log = FALSE, ppm = FALSE, rbiom = FALSE,
-  showPercents = NULL)
+  showPercents = NULL, nomisc = FALSE)
 }
 \arguments{
 \item{biom}{a phyloseq object.}
